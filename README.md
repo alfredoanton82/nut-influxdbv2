@@ -5,6 +5,9 @@ Docker image to pulls data from a NUT server and push it to an InfluxDB bucket. 
 Updated for InfluxDBv2. Changed outputted values. Poll multiple NUT servers. Poll internal batteries on MacOS using the NUT macosx-ups driver.
 
 ## Roadmap
+Telegraf 1.24 introduced built-in support for NUTS servers https://docs.influxdata.com/telegraf/v1.24/plugins/#input-upsd and https://github.com/influxdata/telegraf/blob/release-1.24/plugins/inputs/upsd/README.md, as implemented with this PR https://github.com/influxdata/telegraf/pull/9890/files#diff-60ad28a279b042acced351b6dd19a9a339d8349d6ab603054345bd23bd279462. The use of the standard telegraf input plugins is prefered for a robust implementation and this code will be no longer be maintained as my personal use-case is meet by the current input plugin.
+
+# Setup
 
 ## NUT Servers
 - Get IP address of NUT servers
@@ -33,13 +36,13 @@ $ docker run -d \
 dbsqp/nut-influxdbv2:dev
 ```
 
-# Options
+### Options
 ```
  -e INFLUXDB2_SSL="True" \
  -e INFLUXDB2_SSL_VERIFY="False"
 ```
 
-# Debug
+### Debug
 To report out further details in the log enable debug:
 ```
  -e DEBUG="true"
