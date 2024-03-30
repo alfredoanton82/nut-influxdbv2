@@ -7,11 +7,6 @@ from nut2 import PyNUTClient
 from influxdb_client import InfluxDBClient, Point, WriteOptions
 from influxdb_client.client.write_api import SYNCHRONOUS
 import json, socket
-import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
 
 # NUT related variables
 nut_port = os.getenv('NUT_PORT', '3493')
