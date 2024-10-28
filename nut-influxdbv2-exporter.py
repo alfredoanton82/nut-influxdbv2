@@ -13,11 +13,8 @@ nut_port = os.getenv('NUT_PORT', '3493')
 nut_password = os.getenv('NUT_PASSWORD', 'secret')
 nut_username = os.getenv('NUT_USERNAME', 'monuser')
 nut_upsname = os.getenv('NUT_UPSNAME', 'ups')
-nut_ip_list_str = os.getenv('NUT_IP_LIST', '[]')
 nut_host_list_str = os.getenv('NUT_HOST_LIST', '[]')
-nut_ip_list=eval(nut_ip_list_str)
 nut_host_list=eval(nut_host_list_str)
-
 
 # Other vars
 debug_str = os.getenv('DEBUG', 'false')
@@ -47,7 +44,7 @@ if influxdb2_ssl_verify_str is not None:
     influxdb2_ssl_verify = influxdb2_ssl_verify_str.lower() == "true"
 else:
     influxdb2_ssl_verify = False
-    
+
 # hard encoded environment variables
 
 
@@ -73,13 +70,12 @@ host_ip = socket.gethostbyname(hostname)
 if debug:
     print ( "docker: "+host_ip )
 
-    
 # setup InfluxDB
-if influxdb2_ssl_str:
+if influxdb2_ssl:
     influxdb2_url="https://" + influxdb2_host + ":" + str(influxdb2_port)
 else:
     influxdb2_url="http://" + influxdb2_host + ":" + str(influxdb2_port)
-    
+
 if debug:
     print ( "influx: "+influxdb2_url )
     print ( "bucket: "+influxdb2_bucket )
@@ -92,13 +88,11 @@ else:
     if debug:
         print ( "verify: False" )
     client = InfluxDBClient(url=influxdb2_url, token=influxdb2_token, org=influxdb2_org, verify_ssl=False)
-  
+
 if client and debug:
     print("influx: online")
 
 write_api = client.write_api(write_options=SYNCHRONOUS)
-
-
 
 # define convert
 def convert_to_type(s):
@@ -144,27 +138,22 @@ def construct_object(data, remove_keys, host):
             'tags': tags,
             'fields': fields
         }
-            
+
     return result
 
 
 if debug:
     print("N user: "+nut_username)
     print("N pass: "+nut_password)
-    print("IP list:")
-    print (json.dumps(nut_ip_list,indent=4))
     print("Host list:")
     print (json.dumps(nut_host_list,indent=4))
 
 
 # loop over unique names (allows non unique ip for test)
 for host in nut_host_list:
-    position = nut_host_list.index(host)
-    ipaddress = nut_ip_list[position]
-    print("\nDO NUT: "+nut_upsname+"@"+ipaddress+" > "+host)
 
     # setup NUT
-    ups_client = PyNUTClient(host=ipaddress, port=nut_port, login=nut_username, password=nut_password, debug=nut_debug) 
+    ups_client = PyNUTClient(host=host, port=nut_port, login=nut_username, password=nut_password, debug=nut_debug)
     if ups_client and debug:
         print("   NUT: online")
 
@@ -173,16 +162,16 @@ for host in nut_host_list:
         try:
             ups_data = ups_client.list_vars(nut_upsname)
             if debug:
-                print ("RAW: "+nut_upsname+" @ "+ipaddress)
+                print ("RAW: "+nut_upsname+" @ "+host)
                 print (json.dumps(ups_data,indent=4))
         except:
             tb = traceback.format_exc()
             if debug:
                 print(tb)
-            print("Error getting data from NUT at "+ipaddress+" "+host)
+            print("Error getting data from NUT at "+host)
             exit(1)
 
-    
+
         json_body = construct_object(ups_data, remove_keys, host)
 
         try:

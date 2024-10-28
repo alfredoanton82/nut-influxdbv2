@@ -1,23 +1,22 @@
 ARG ARCH=
 
 # Pull base image
-FROM ubuntu:latest
+FROM python:3.12-slim-bookworm
 
 # Labels
 LABEL MAINTAINER="https://github.com/dbsqp/"
 
 # Setup external package-sources
-RUN apt-get update && apt-get install -y \
+RUN apt update && apt upgrade -y && apt install -y \
     python3 \
     python3-dev \
     python3-setuptools \
     python3-pip \
-    python3-virtualenv \
-    --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/* 
+    python3-virtualenv && \
+    rm -rf /var/lib/apt/lists/*
 
 # RUN pip install setuptools
-RUN pip3 install pytz influxdb-client nut2
+RUN pip3 install pytz nut2 influxdb-client
 
 # Environment vars
 ENV PYTHONIOENCODING=utf-8
